@@ -19,10 +19,6 @@ variables:
   # Agent VM image name
   vmImageName: "ubuntu-latest"
 
-# Link to the variable group containing MONGO_URI
-variables:
-  - group: DatabaseConfig  # Reference the existing variable group where MONGO_URI is defined
-
 stages:
   - stage: Build
     displayName: Build stage
@@ -77,6 +73,3 @@ stages:
                     runtimeStack: "NODE|22LTS"
                     package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
                     startUpCommand: "npm run start"
-                    # Ensure environment variables like MONGO_URI are passed to the app
-                    appSettings: |
-                      -name MONGO_URI -value $(MONGO_URI)
