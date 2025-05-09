@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-Do App</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        background-color: #121212;
+        color: #e0e0e0;
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      .container {
+        width: 80%;
+        margin-top: 40px;
+      }
+
+      h1 {
+        font-weight: 600;
+        margin-bottom: 30px;
+      }
+
+      .form-control,
+      .btn {
+        border-radius: 8px;
+      }
+
+      .form-control {
+        background-color: #1f1f1f;
+        border: 1px solid #333;
+        color: #eee;
+      }
+
+      .form-control::placeholder {
+        color: #888;
+      }
+
+      .card {
+        background-color: #1e1e1e;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        margin-bottom: 15px;
+        padding: 16px;
+      }
+
+      .todo-text.done {
+        text-decoration: line-through;
+        color: #888;
+      }
+
+      .btn-icon {
+        background: none;
+        border: none;
+        color: #bbb;
+        font-size: 1.1rem;
+        margin-left: 10px;
+        transition: color 0.2s;
+      }
+
+      .btn-icon:hover {
+        color: #fff;
+      }
+
+      .todo-actions {
+        display: flex;
+        align-items: center;
+      }
+
+      .custom-input {
+        padding: 20px 16px;
+        background-color: #1f1f1f;
+        border: 1px solid #333;
+        color: #eee;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+        transition: all 0.2s ease;
+      }
+
+      .custom-input:focus {
+        outline: none;
+        border-color: #555;
+        box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+      }
+
+      .custom-input:focus {
+        background-color: #1f1f1f; /* stay dark */
+        border-color: #555; /* subtle border highlight */
+        color: #eee; /* no change */
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.1); /* soft glow */
+      }
+      .custom-add-btn {
+        background-color: #00aa93; /* teal */
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        font-weight: 500;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 134, 117, 0.3);
+        transition: background-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .custom-add-btn:hover {
+        background-color: #00a895;
+        box-shadow: 0 6px 18px rgba(1, 77, 66, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="text-center text-light">📝 To-Do List</h1>
+
+      <!-- Add New Todo -->
+      <form action="/todos" method="POST" class="mb-4">
+        <div class="form-group d-flex align-items-center">
+          <input
+            type="text"
+            name="task"
+            class="form-control custom-input mr-2"
+            placeholder="What do you need to do?"
+            required
+          />
+          <button type="submit" class="custom-add-btn shadow-sm px-4 py-2">
+            Add
+          </button>
+        </div>
+      </form>
+
+      <!-- Todo Cards -->
+      <% todos.forEach(todo => { %>
+      <div
+        class="card d-flex justify-content-between align-items-center flex-row"
+      >
+        <div>
+          <span class="todo-text <%= todo.done ? 'done' : '' %>">
+            <%= todo.task %>
+          </span>
+        </div>
+        <div class="todo-actions">
+          <!-- Toggle Done -->
+          <form action="/todos/<%= todo._id %>?_method=PUT" method="POST">
+            <button type="submit" class="btn-icon" title="Done/Undo">
+              <i
+                class="fas <%= todo.done ? 'fa-rotate-left' : 'fa-check' %>"
+              ></i>
+            </button>
+          </form>
+
+          <!-- Edit -->
+          <form action="/todos/<%= todo._id %>/edit" method="GET">
+            <button type="submit" class="btn-icon" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+          </form>
+
+          <!-- Delete -->
+          <form action="/todos/<%= todo._id %>?_method=DELETE" method="POST">
+            <button type="submit" class="btn-icon text-danger" title="Delete">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </body>
+</html>
