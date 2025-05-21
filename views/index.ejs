@@ -22,6 +22,7 @@
       .container {
         width: 80%;
         margin-top: 40px;
+        max-width: 700px; /* Max width for better readability on large screens */
       }
 
       h1 {
@@ -30,15 +31,22 @@
       }
 
       .form-control,
-      .btn {
+      .btn, .form-control-file {
         border-radius: 8px;
       }
 
-      .form-control {
+      .form-control, .form-control-sm {
         background-color: #1f1f1f;
         border: 1px solid #333;
         color: #eee;
       }
+      .form-control-file {
+        background-color: #1f1f1f;
+        border: 1px solid #333;
+        color: #eee;
+        padding: 0.375rem 0.75rem; /* Match form-control padding */
+      }
+
 
       .form-control::placeholder {
         color: #888;
@@ -49,13 +57,15 @@
         border: none;
         border-radius: 12px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-        margin-bottom: 15px;
-        padding: 16px;
       }
 
       .todo-text.done {
         text-decoration: line-through;
         color: #888;
+      }
+      .card-title.done {
+        text-decoration: line-through;
+        color: #aaa;
       }
 
       .btn-icon {
@@ -71,11 +81,6 @@
         color: #fff;
       }
 
-      .todo-actions {
-        display: flex;
-        align-items: center;
-      }
-
       .custom-input {
         padding: 22px 20px;
         background-color: #1f1f1f;
@@ -89,14 +94,10 @@
         outline: none;
         border-color: #555;
         box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+        background-color: #1f1f1f;
+        color: #eee;
       }
-
-      .custom-input:focus {
-        background-color: #1f1f1f; /* stay dark */
-        border-color: #555; /* subtle border highlight */
-        color: #eee; /* no change */
-        box-shadow: 0 0 6px rgba(255, 255, 255, 0.1); /* soft glow */
-      }
+      
       .custom-add-btn {
         background-color: #00aa93; /* teal */
         color: #fff;
@@ -112,54 +113,96 @@
         background-color: #00a895;
         box-shadow: 0 6px 18px rgba(1, 77, 66, 0.4);
       }
+      .img-fluid {
+        border-radius: 0.25rem; /* Bootstrap's default rounded class */
+      }
+      .form-check-label.small {
+        font-size: 0.875em; /* Make "Done" label smaller */
+      }
+      .float-right { /* Utility for delete button positioning */
+          float: right;
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1 class="text-center text-light pt-5 mb-5">📝 MY To-Do List</h1>
+      <h1 class="text-center text-light pt-5 mb-4">📝 MY To-Do List</h1>
 
       <!-- Add New Todo -->
-      <form action="/todos" method="POST" class="mb-5">
-        <div class="form-group d-flex align-items-center">
+      <form action="/todos" method="POST" class="mb-5 p-4 card" enctype="multipart/form-data">
+        <div class="form-group">
           <input
             type="text"
             name="task"
-            class="form-control custom-input mr-2"
+            class="form-control custom-input mb-2"
             placeholder="What do you need to do?"
             required
           />
-          <button type="submit" class="custom-add-btn shadow-sm px-4 py-2">
-            Add
-          </button>
         </div>
+        <div class="form-group">
+            <textarea name="description" class="form-control mb-2" placeholder="Add a description (optional)"></textarea>
+        </div>
+        <div class="form-group">
+            <label class="small text-muted">Image (optional)</label>
+            <input type="file" name="image" class="form-control-file mb-2">
+        </div>
+        <div class="form-group">
+            <label class="small text-muted">Reminder (optional)</label>
+            <input type="datetime-local" name="reminder" class="form-control mb-2">
+        </div>
+        <button type="submit" class="btn custom-add-btn btn-block shadow-sm py-2">
+          Add Todo
+        </button>
       </form>
 
       <!-- Todo Cards -->
       <% todos.forEach(todo => { %>
-      <div
-        class="card d-flex justify-content-between align-items-center flex-row"
-      >
-        <div>
-          <span class="todo-text <%= todo.done ? 'done' : '' %>">
-            <%= todo.task %>
-          </span>
-        </div>
-        <div class="todo-actions">
-          <!-- Toggle Done -->
-          <form action="/todos/<%= todo._id %>?_method=PUT" method="POST">
-            <button type="submit" class="btn-icon" title="Done/Undo">
-              <i
-                class="fas <%= todo.done ? 'fa-rotate-left' : 'fa-check' %>"
-              ></i>
-            </button>
-          </form>
+      <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 class="card-title <%= todo.done ? 'done' : '' %>"><%= todo.task %></h5>
+                    <% if (todo.description) { %><p class="card-text text-muted small mb-2"><%= todo.description %></p><% } %>
+                    <% if (todo.imageFilename) { %><img src="/uploads/images/<%= todo.imageFilename %>" alt="Todo image" class="img-fluid rounded mb-2" style="max-width: 200px; max-height: 150px; object-fit: cover;"><% } %>
+                    <% if (todo.reminder) { %><p class="card-text small mb-2"><small class="text-info">Reminder: <%= new Date(todo.reminder).toLocaleString() %></small></p><% } %>
+                </div>
+                <!-- Delete Form (kept separate, using btn-icon style) -->
+                <form action="/todos/<%= todo._id %>?_method=DELETE" method="POST" class="ml-2">
+                    <button type="submit" class="btn-icon text-danger" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                </form>
+            </div>
 
-          <!-- Delete -->
-          <form action="/todos/<%= todo._id %>?_method=DELETE" method="POST">
-            <button type="submit" class="btn-icon text-danger" title="Delete">
-              <i class="fas fa-trash-alt"></i>
-            </button>
-          </form>
+            <!-- Collapsible Edit Form Trigger -->
+            <p class="mb-0 mt-2">
+              <button class="btn btn-sm btn-secondary" type="button" data-toggle="collapse" data-target="#editForm-<%= todo._id %>" aria-expanded="false" aria-controls="editForm-<%= todo._id %>">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+            </p>
+            <div class="collapse mt-3" id="editForm-<%= todo._id %>">
+              <form action="/todos/<%= todo._id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                  <label class="small font-weight-bold">Task</label>
+                  <input type="text" name="task" value="<%= todo.task %>" class="form-control form-control-sm">
+                </div>
+                <div class="form-group">
+                  <label class="small font-weight-bold">Description</label>
+                  <textarea name="description" class="form-control form-control-sm"><%= todo.description || '' %></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="small font-weight-bold">Reminder</label>
+                  <input type="datetime-local" name="reminder" value="<%= todo.reminder ? new Date(new Date(todo.reminder).getTime() - (new Date(todo.reminder).getTimezoneOffset() * 60000)).toISOString().substring(0,16) : '' %>" class="form-control form-control-sm">
+                </div>
+                <div class="form-group">
+                  <label class="small font-weight-bold">Replace Image</label>
+                  <input type="file" name="image" class="form-control-file form-control-file-sm">
+                </div>
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" name="done" value="true" id="done-<%= todo._id %>" <%= todo.done ? 'checked' : '' %>>
+                  <label class="form-check-label small" for="done-<%= todo._id %>">Done</label>
+                </div>
+                <button type="submit" class="btn btn-sm btn-success mr-2">Save Changes</button>
+              </form>
+            </div>
         </div>
       </div>
       <% }) %>
